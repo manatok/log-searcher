@@ -20,4 +20,4 @@ class Log(Resource):
     @api.doc('save a new log record')
     def post(self, site_id):
         data = request.json
-        return save_log(data=data)
+        return save_log(data=data, site_id=site_id)

@@ -26,6 +26,7 @@ services:
 
   elasticsearch:
     build: ./elasticsearch
+    container_name: elasticsearch
     volumes:
         - ./elasticsearch/config.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     ports:
