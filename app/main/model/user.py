@@ -27,14 +27,15 @@ class User:
     allowed_site_ids = []
 
     def __init__(self, id: str, email: str, password: str, allowed_site_ids: [str]):
+        self.id = id
         self.email = email
         self.password = password
         self.allowed_site_ids = allowed_site_ids
 
     @staticmethod
-    def get_by_email(email: str):
+    def get_by(column: str, value: str):
         for user in test_users:
-            if user["email"] == email:
+            if user[column] == value:
                 return User(user["id"], user["email"], user["password"],
                             user["allowed_site_ids"])
 
@@ -68,12 +69,9 @@ class User:
         """
         Decodes the auth token
         :param auth_token:
-        :return: integer|string
+        :return: string
+        :raise jwt.ExpiredSignatureError
+        :raise jwt.InvalidTokenError
         """
-        try:
-            payload = jwt.decode(auth_token, key)
-            return payload['sub']
-        except jwt.ExpiredSignatureError:
-            return 'Signature expired. Please log in again.'
-        except jwt.InvalidTokenError:
-            return 'Invalid token. Please log in again.'
+        payload = jwt.decode(auth_token, key)
+        return payload['sub']
