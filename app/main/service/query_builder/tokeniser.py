@@ -1,32 +1,7 @@
 import re
-
-
-class TokenisationError(Exception):
-    pass
-
-
-class UnbalancedQuotationsError(TokenisationError):
-
-    def __init__(self, message):
-        super().__init__(message)
-
-
-class UnbalancedParenthesisError(TokenisationError):
-
-    def __init__(self, message):
-        super().__init__(message)
-
-
-class UnknownKeywordError(TokenisationError):
-
-    def __init__(self, message):
-        super().__init__(message)
-
-
-class InvalidExpressionError(TokenisationError):
-
-    def __init__(self, message):
-        super().__init__(message)
+from werkzeug.exceptions import BadRequest
+from ..exception import UnbalancedQuotationsError, \
+    UnbalancedParenthesisError, UnknownKeywordError
 
 
 class TokenTypes:
@@ -92,7 +67,8 @@ class TokenisedExpression:
         :raise UnbalancedQuotationsError
         """
         if "'" in self.clean_expression or '"' in self.clean_expression:
-            raise UnbalancedQuotationsError("Error")
+            raise UnbalancedQuotationsError(
+                "Unbalanced quotations in the query")
 
         return True
 
@@ -112,13 +88,15 @@ class TokenisedExpression:
             else:
                 # Trying to close without an open
                 if count == 0:
-                    raise UnbalancedParenthesisError("Error")
+                    raise UnbalancedParenthesisError(
+                        "Too many closing parenthesis in the query")
 
                 count -= 1
 
         # unclosed opens
         if count > 0:
-            raise UnbalancedParenthesisError("Error")
+            raise UnbalancedParenthesisError(
+                "Unclosed parenthesis in the query")
 
         return True
 
@@ -137,7 +115,7 @@ class TokenisedExpression:
         for token in self.tokens:
             if str.lower(token) not in allowed_keywords and \
                     not str.startswith(token, self.SEARCH_PLACEHOLDER):
-                raise UnknownKeywordError("Found: " + token)
+                raise UnknownKeywordError("Unexpected keyword: " + token)
 
         return True
 

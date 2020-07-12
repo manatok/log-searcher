@@ -2,6 +2,8 @@ from functools import wraps
 from flask import request, g
 
 from app.main.service.auth_helper import Auth
+from app.main.service.rate_limiter import RateLimiter
+from app.main.service.exception import RateLimitExceededError
 
 
 def verified_request(f):
@@ -26,6 +28,16 @@ def verified_request(f):
 def rate_limited_request(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        site_data = g.site_details.get('data')
+        remaining_calls = RateLimiter.get_remaining_calls(
+            site_data['id'],
+            site_data['max_requests'],
+            site_data['window_seconds']
+        )
+
+        if remaining_calls <= 0:
+            raise RateLimitExceededError("Request rate limit reached")
+
         return f(*args, **kwargs)
 
     return decorated

@@ -15,6 +15,7 @@ elasticsearch = "*"
 redis = "*"
 pyjwt = "*"
 flask-restx = "*"
+werkzeug = "*"
 
 [requires]
 python_version = "3.7"

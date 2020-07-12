@@ -15,4 +15,5 @@ api = Api(
 
 # on the /auth namespace
 api.add_namespace(auth_ns)
+# on the /log namespace
 api.add_namespace(log_ns)

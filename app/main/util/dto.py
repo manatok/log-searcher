@@ -11,12 +11,18 @@ class AuthDto:
 
 class LogDto:
     api = Namespace('log', description='logging related operations')
+
     log_req = api.model('log_req', {
         'message': fields.String(required=True, description='The error log message')
     })
+
     log_resp = api.model('log_resp', {
         'message': fields.String(required=True, description='The error log message'),
         'browser': fields.String(required=False, description='The browser of the user'),
         'url': fields.String(required=False, description='The URL the error occurred on'),
         'country': fields.String(required=False, description='The country the user is from'),
+    })
+
+    error_fields = api.model('error_fields', {
+        'message': fields.String(required=True, description='The error message')
     })
