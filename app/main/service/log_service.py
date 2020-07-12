@@ -1,13 +1,17 @@
 from app.main.dataprovider.log_dataprovider import LogDataProvider
 from app.main.model.log import Log
+from .geo import get_country
 
 
-def save_log(data, site_id):
+def save_log(data, site_id: str, browser: str, url: str, ip: str):
+
+    country = get_country(ip)
+
     log = Log(
-        message="This is some log",
-        browser="Safari",
-        country="South Africa",
-        url="http://localhost/some/error/path"
+        message=data['message'],
+        browser=browser,
+        country=country,
+        url=url
     )
 
     if LogDataProvider.save(log, site_id):
