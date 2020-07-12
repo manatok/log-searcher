@@ -1,13 +1,11 @@
-import json
 from app.main.model.log import Log
 from flask import current_app
+from elasticsearch import Elasticsearch
 
 
 def create_index_if_not_exists(index):
-    if not current_app.es:
-        return False
 
-    if not current_app.es.indices.exists(index):
+    if not LogDataProvider.get_es_connection().indices.exists(index):
 
         # index settings
         settings = {
@@ -30,11 +28,20 @@ def create_index_if_not_exists(index):
         }
 
         # create index
-        current_app.es.indices.create(
+        LogDataProvider.get_es_connection().indices.create(
             index=index, ignore=400, body=settings)
 
 
 class LogDataProvider:
+    @staticmethod
+    def get_es_connection():
+        if not hasattr(current_app, 'es') or not current_app.es:
+            print("Creating")
+            current_app.es = Elasticsearch(
+                [current_app.config['ELASTICSEARCH_URL']])
+
+        return current_app.es
+
     @staticmethod
     def save(log: Log, site_id: str):
         create_index_if_not_exists(site_id)
@@ -43,14 +50,16 @@ class LogDataProvider:
         for field in log.__annotations__.keys():
             payload[field] = getattr(log, field)
 
-        resp = current_app.es.index(index=site_id, body=payload)
+        resp = LogDataProvider.get_es_connection().index(
+            index=site_id, body=payload)
 
         return 'result' in resp and resp['result'] == 'created'
 
     @staticmethod
     def query(query_string: str, site_id: str):
         create_index_if_not_exists(site_id)
-        res = current_app.es.search(index=site_id, body=query_string)
+        res = LogDataProvider.get_es_connection().search(
+            index=site_id, body=query_string)
 
         hits = []
         for hit in res['hits']['hits']:

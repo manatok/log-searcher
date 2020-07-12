@@ -9,7 +9,7 @@ app.app_context().push()
 
 
 def run():
-    app.run(use_reloader=True, debug=False)
+    app.run(use_reloader=True, debug=app.config['DEBUG'])
 
 
 if __name__ == '__main__':

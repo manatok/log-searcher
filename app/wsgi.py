@@ -1,4 +1,4 @@
 from .manage import app
 
 if __name__ == "__main__":
-    app.run(use_reloader=True, debug=False)
+    app.run(use_reloader=True, debug=app.config['DEBUG'])
