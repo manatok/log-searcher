@@ -48,9 +48,9 @@ def token_required(f):
     def decorated(*args, **kwargs):
 
         data, status = Auth.get_logged_in_user(request)
-        token = data.get('status')
+        success = data.get('status')
 
-        if not token:
+        if not success or success != "success":
             return data, status
 
         return f(*args, **kwargs)
