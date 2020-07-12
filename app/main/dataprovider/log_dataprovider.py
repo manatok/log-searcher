@@ -1,3 +1,4 @@
+import json
 from app.main.model.log import Log
 from flask import current_app
 
@@ -45,3 +46,14 @@ class LogDataProvider:
         resp = current_app.es.index(index=site_id, body=payload)
 
         return 'result' in resp and resp['result'] == 'created'
+
+    @staticmethod
+    def query(query_string: str, site_id: str):
+        create_index_if_not_exists(site_id)
+        res = current_app.es.search(index=site_id, body=query_string)
+
+        hits = []
+        for hit in res['hits']['hits']:
+            hits.append(hit['_source'])
+
+        return hits
