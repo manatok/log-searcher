@@ -20,7 +20,6 @@ error_fields = LogDto.error_fields
 @api.header('My-Header',  'Some description')
 def handle_exception(error):
     '''This is a custom error'''
-    print("ERORR IS: ", error.description)
     return {'message': error.description}, error.response, {'My-Header': 'Value'}
 
 
