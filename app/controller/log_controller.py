@@ -5,7 +5,7 @@ from app.util.decorator import verified_account, \
     rate_limited, token_required, site_restricted
 from ..util.dto import LogDto
 from ..service.log_service import save_log, query_logs
-from ..service.exception import TokenisationError
+from ..service.query_builder.tokeniser import TokenisationError
 
 api = LogDto.api
 log_req = LogDto.log_req
