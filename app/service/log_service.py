@@ -27,11 +27,14 @@ def save_log(data, site_id: str, browser: str, url: str, ip: str):
         }, 500
 
 
-def query_logs(query: str, site_id: str):
+def query_logs(query: str, site_id: str, limit: int, offset: int):
 
     tokenised_expression = TokenisedExpression(query)
     boolean_expression = BooleanExpressionGenerator(tokenised_expression)
     boolean_tree = boolean_expression.build()
     # printBTree(boolean_tree, lambda n: (str(n.val), n.left, n.right))
     es_adapter = ElasticsearchAdapter(boolean_tree)
-    return LogDataProvider.query(es_adapter.get_query(), site_id)
+    return LogDataProvider.query(
+        es_adapter.get_query(limit, offset),
+        site_id
+    )

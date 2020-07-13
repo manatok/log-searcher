@@ -1,7 +1,5 @@
 from flask import request
 from flask_restx import Resource
-from werkzeug.exceptions import Unauthorized,\
-    TooManyRequests
 
 from app.util.decorator import verified_account, \
     rate_limited, token_required, site_restricted
@@ -49,4 +47,22 @@ class Log(Resource):
         :raises TokenisationError: In case of malformed query
         """
         query = request.args.get('query')
-        return query_logs(query, site_id)
+
+        # pagination params
+        limit = request.args.get('limit', 10)
+        limit = get_int_value(limit, 10, 0)
+        page = request.args.get('page', 1)
+        page = get_int_value(page, 1, 1)
+        offset = (page - 1) * limit
+
+        return query_logs(query, site_id, limit, offset)
+
+
+def get_int_value(value: str, default_value: int, min_allowed: int) -> int:
+    try:
+        value = int(value)
+        if value < min_allowed:
+            value = default_value
+        return value
+    except ValueError:
+        return default_value

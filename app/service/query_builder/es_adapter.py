@@ -21,8 +21,10 @@ class ElasticsearchAdapter:
     def __init__(self, boolean_tree: BooleanNode):
         self.boolean_tree = boolean_tree
 
-    def get_query(self):
+    def get_query(self, limit: int, offset: int):
         query = {
+            'size': limit,
+            'from': offset,
             'query': self.get_query_recursive(self.boolean_tree)
         }
         return json.dumps(query)
