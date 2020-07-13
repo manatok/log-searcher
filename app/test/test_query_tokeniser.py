@@ -1,6 +1,6 @@
 import unittest
 
-from app.service.query_builder.tokeniser import TokenisedExpression, \
+from app.service.query_builder.tokenised_expression import TokenisedExpression, \
     TokenisationError
 
 

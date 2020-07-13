@@ -1,28 +1,31 @@
-from .tokeniser import TokenisedExpression
+from .tokenised_expression import TokenisedExpression, TokenisationError
 
 
 class BooleanCondition(object):
+    """
+    BooleanCondition represents a leaf node in the boolean
+    expression tree.
+
+    key = Elasticsearch column
+    value: The search value
+    operation: contains | is
+    negate: if we are to negate this condition
+    """
     key = ""
     value = ""
     operation = ""
     negate = False
 
-    def __getattribute__(self, name):
-        if name == 'left':
-            return BooleanNode(object.__getattribute__(self, 'key'))
-        elif name == 'right':
-            negate_str = ""
-            if object.__getattribute__(self, 'negate'):
-                negate_str = "NOT "
-            return BooleanNode(negate_str + object.__getattribute__(self, 'value'))
-        elif name == 'val':
-            return BooleanNode(object.__getattribute__(self, 'operation')).node_type
-        else:
-            return object.__getattribute__(self, name)
-
 
 class BooleanNode(object):
-    # AND | OR
+    """
+    BooleanNode represents a boolean (AND | OR) that
+    is to be performed on a it's two child branches.
+
+    node_type: and | or
+    left & right:  BooleanNode | BooleanCondition
+    negate: If this node is to be negated
+    """
     node_type = ""
     left = None
     right = None
@@ -31,18 +34,14 @@ class BooleanNode(object):
     def __init__(self, node_type: str):
         self.node_type = node_type
 
-    def __getattribute__(self, name):
-        if name == 'val':
-            negate_str = ""
-            if object.__getattribute__(self, 'negate'):
-                negate_str = "NOT "
-            return negate_str + object.__getattribute__(self, 'node_type')
-        else:
-            return object.__getattribute__(self, name)
-
 
 class BooleanExpressionGenerator:
-
+    """
+    BooleanExpressionGenerator constructs a Boolean
+    Expression Tree, given a tokenised expression.
+    The tree is constructed in a recursive manner as
+    each of the tokens are evaluated.
+    """
     b_tree = None
     tokens = None
 
@@ -102,21 +101,21 @@ class BooleanExpressionGenerator:
 
         if self.tokens.has_next():
             condition.key = self.tokens.next()
-
-            if self.tokens.has_next():
-                condition.operation = self.tokens.next()
-
-                if self.tokens.has_next() and str.lower(self.tokens.peek()) == 'not':
-                    condition.negate = not condition.negate
-                    self.tokens.next()
-
-                if self.tokens.has_next():
-                    condition.value = self.tokens.terms[self.tokens.next()]
-                else:
-                    raise Exception("Missing Value")
-            else:
-                raise Exception("Incomplete condition")
         else:
-            raise Exception("Incomplete condition")
+            raise TokenisationError("Incomplete condition")
+
+        if self.tokens.has_next():
+            condition.operation = self.tokens.next()
+        else:
+            raise TokenisationError("Incomplete condition")
+
+        if self.tokens.has_next() and str.lower(self.tokens.peek()) == 'not':
+            condition.negate = not condition.negate
+            self.tokens.next()
+
+        if self.tokens.has_next():
+            condition.value = self.tokens.terms[self.tokens.next()]
+        else:
+            raise TokenisationError("Missing Value")
 
         return condition

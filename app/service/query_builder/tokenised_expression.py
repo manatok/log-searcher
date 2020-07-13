@@ -9,12 +9,20 @@ class TokenisationError(BadRequest):
         super().__init__(message, self.error_code)
 
 
-class TokenTypes:
-    AND, OR, NOT, IS, CONTAINS, OPEN_PARENTHESIS, \
-        CLOSE_PARENTHESIS, SEARCH_TERM = range(8)
-
-
 class TokenisedExpression:
+    """
+    TokenisedExpression converts a search query string into a tokenised
+    representation. There are three main stages:
+
+    1. Clean: creates a version of the query expression without any search
+        terms in it, they are all replaced by placeholders. This allows
+        for easier validation and tokenisation.
+
+    2. Tokenise: splits the search query into it's token constituents.
+
+    3. Validate: ensures that the query is escaped properly, that all of the
+            parenthesis are balanced and that the tokens are all allowed.
+    """
 
     FIELDS = ['browser', 'country', 'url', 'message']
     BOOLEAN_OPERATORS = ['and', 'or', 'not']
@@ -37,29 +45,39 @@ class TokenisedExpression:
         self.validate()
 
     def clean(self):
-
+        """
+        Replace all of the search terms with placeholders
+        """
         def get_and_set_queries(match):
             key = self.SEARCH_PLACEHOLDER + "_" + str(match.start())
             self.terms[key] = match.group()
             return key
 
+        # used to find all search phrases surrounded by single or double quotes
         balanced_quotes = r'\"([^\"\\]*(\\.[^\"\\]*)*)\"|\'([^\'\\]*(\\.[^\'\\]*)*)\''
 
         self.clean_expression = re.sub(
             balanced_quotes, get_and_set_queries, self.expression)
 
     def tokenise(self):
+        """
+        Split the query expression into all of its tokens.
+        """
         reg = re.compile(
             r'(\bAND\b|\bOR\b|\bNOT\b|\band\b|\bor\b|\bnot\b|\bIS\b|\bis\b|\bCONTAINS\b|\bcontains\b|\(|\))')
         self.tokens = reg.split(self.clean_expression)
         self.tokens = [t.strip() for t in self.tokens if t.strip() != '']
 
     def validate(self):
+        """
+        Ensure that the query is valid by running all the checks
+
+        :raise TokenisationError
+        """
         [v() for v in [
             self.validate_quotations,
             self.validate_parenthesis,
-            self.validate_allowed_tokens,
-            self.validate_dsl]]
+            self.validate_allowed_tokens]]
 
         return True
 
@@ -124,15 +142,6 @@ class TokenisedExpression:
 
         return True
 
-    def validate_dsl(self):
-        """
-        Ensure that the query is grammatically correct.
-
-        :return bool
-        :raise TokenisationError
-        """
-        pass
-
     def next(self):
         self.position += 1
         return self.tokens[self.position - 1]
@@ -142,18 +151,3 @@ class TokenisedExpression:
 
     def has_next(self):
         return self.position < len(self.tokens)
-
-    def is_operator(self, value: str):
-        return str.lower(value) in self.OPERATIONS
-
-    def is_boolean_operator(self, value: str):
-        return self.lower(value) in self.BOOLEAN_OPERATORS
-
-    def is_field(self, value: str):
-        return self.lower(value) in self.FIELDS
-
-    def is_open_parenthesis(self, value: str):
-        return value == '('
-
-    def is_close_parenthesis(self, value: str):
-        return value == ')'

@@ -36,7 +36,6 @@ class LogDataProvider:
     @staticmethod
     def get_es_connection():
         if not hasattr(current_app, 'es') or not current_app.es:
-            print("Creating")
             current_app.es = Elasticsearch(
                 [current_app.config['ELASTICSEARCH_URL']])
 
