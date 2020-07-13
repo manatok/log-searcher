@@ -106,6 +106,10 @@ class BooleanExpressionGenerator:
             if self.tokens.has_next():
                 condition.operation = self.tokens.next()
 
+                if self.tokens.has_next() and str.lower(self.tokens.peek()) == 'not':
+                    condition.negate = not condition.negate
+                    self.tokens.next()
+
                 if self.tokens.has_next():
                     condition.value = self.tokens.terms[self.tokens.next()]
                 else:

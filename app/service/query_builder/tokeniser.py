@@ -9,22 +9,6 @@ class TokenisationError(BadRequest):
         super().__init__(message, self.error_code)
 
 
-class UnbalancedQuotationsError(TokenisationError):
-    pass
-
-
-class UnbalancedParenthesisError(TokenisationError):
-    pass
-
-
-class UnknownKeywordError(TokenisationError):
-    pass
-
-
-class InvalidExpressionError(TokenisationError):
-    pass
-
-
 class TokenTypes:
     AND, OR, NOT, IS, CONTAINS, OPEN_PARENTHESIS, \
         CLOSE_PARENTHESIS, SEARCH_TERM = range(8)
@@ -85,10 +69,10 @@ class TokenisedExpression:
         there should be no more quotes left in the expression.
 
         :return bool
-        :raise UnbalancedQuotationsError
+        :raise TokenisationError
         """
         if "'" in self.clean_expression or '"' in self.clean_expression:
-            raise UnbalancedQuotationsError(
+            raise TokenisationError(
                 "Unbalanced quotations in the query")
 
         return True
@@ -98,7 +82,7 @@ class TokenisedExpression:
         Make sure that the parenthesis are balanced
 
         :return bool
-        :raise UnbalancedParenthesisError
+        :raise TokenisationError
         """
         sequence = [x for x in self.clean_expression if x in '()']
 
@@ -109,14 +93,14 @@ class TokenisedExpression:
             else:
                 # Trying to close without an open
                 if count == 0:
-                    raise UnbalancedParenthesisError(
+                    raise TokenisationError(
                         "Too many closing parenthesis in the query")
 
                 count -= 1
 
         # unclosed opens
         if count > 0:
-            raise UnbalancedParenthesisError(
+            raise TokenisationError(
                 "Unclosed parenthesis in the query")
 
         return True
@@ -126,7 +110,7 @@ class TokenisedExpression:
         Make sure that every token is known and allowed
 
         :return bool
-        :raise UnknownKeywordError
+        :raise TokenisationError
         """
         allowed_keywords = [
             str.lower(x) for x in self.FIELDS + self.OPERATIONS +
@@ -136,7 +120,7 @@ class TokenisedExpression:
         for token in self.tokens:
             if str.lower(token) not in allowed_keywords and \
                     not str.startswith(token, self.SEARCH_PLACEHOLDER):
-                raise UnknownKeywordError("Unexpected keyword: " + token)
+                raise TokenisationError("Unexpected keyword: " + token)
 
         return True
 
@@ -145,7 +129,7 @@ class TokenisedExpression:
         Ensure that the query is grammatically correct.
 
         :return bool
-        :raise InvalidExpressionError
+        :raise TokenisationError
         """
         pass
 
