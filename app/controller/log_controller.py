@@ -15,10 +15,9 @@ error_fields = LogDto.error_fields
 
 @api.errorhandler(TokenisationError)
 @api.marshal_with(error_fields)
-@api.header('My-Header',  'Some description')
 def handle_exception(error):
     '''This is a custom error'''
-    return {'message': error.description}, error.response, {'My-Header': 'Value'}
+    return {'message': error.description}, error.response
 
 
 @api.route('/<site_id>')
@@ -35,7 +34,7 @@ class Log(Resource):
         url = request.values.get("url") or request.headers.get("Referer")
         ip_address = request.access_route[0] or request.remote_addr
 
-        return save_log(data, site_id, browser, url, ip_address)
+        return save_log(data, site_id, browser, url, ip_address), 201
 
     @token_required
     @site_restricted
