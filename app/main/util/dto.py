@@ -8,9 +8,13 @@ class AuthDto:
         'password': fields.String(required=True, description='The user password'),
     })
 
+    error_fields = api.model('error_fields', {
+        'message': fields.String(required=True, description='The error message')
+    })
+
 
 class LogDto:
-    api = Namespace('log', description='logging related operations')
+    api = Namespace('logs', description='logging related operations')
 
     log_req = api.model('log_req', {
         'message': fields.String(required=True, description='The error log message')

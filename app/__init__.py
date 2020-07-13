@@ -14,6 +14,6 @@ api = Api(
 )
 
 # on the /auth namespace
-api.add_namespace(auth_ns)
+api.add_namespace(auth_ns, path='/auth')
 # on the /log namespace
-api.add_namespace(log_ns)
+api.add_namespace(log_ns, path='/logs')
