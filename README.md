@@ -9,7 +9,7 @@ curl --header "Content-Type: application/json" \
   --header "Referer: http://localhost" \
   --request POST \
   --data '{"message":"Some log message"}' \
-  http://localhost:5000/logs/site1
+  http://localhost:5000/api/v1/logs/site1
 ```
 
 The `site_id` would be provided to the user when signing up for tha application and is used to verify requests. In the above example the Referer header is set explicitly, but this would be set by the client making the requests. For demo purposes there is a list of known sites can be found [here](app/dataprovider/site_dataprovider.py).
@@ -31,7 +31,7 @@ Searching for errors requires authenticating first. Logging in can be performed 
 curl --header "Content-Type: application/json" \
   --request POST \
   --data '{"email":"site1@test.com", "password":"test"}' \
-  http://localhost:5000/auth/login
+  http://localhost:5000/api/v1/auth/login
 ```
 
 This will return an JWT `Authorization` token as follows:
@@ -45,7 +45,7 @@ After logging in you will be able to query the logs, for example:
 ```bash
 curl --header 'Authorization: auth_token_here'
   --request GET \
-  'http://0.0.0.0:5000/logs/site1?limit=10&page=1&query=some_urlencoded_query'
+  'http://0.0.0.0:5000/api/v1/logs/site1?limit=10&page=1&query=some_urlencoded_query'
 
 ```
 

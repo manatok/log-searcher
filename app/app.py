@@ -22,7 +22,7 @@ api.add_namespace(auth_ns, path='/auth')
 api.add_namespace(log_ns, path='/logs')
 
 app = create_app(os.getenv('RUNNING_ENV') or 'dev')
-app.register_blueprint(blueprint)
+app.register_blueprint(blueprint, url_prefix='/api/v1')
 app.app_context().push()
 
 

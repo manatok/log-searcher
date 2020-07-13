@@ -42,9 +42,7 @@ class Log(Resource):
     @api.response(code=200, model=log_resp, description='Success')
     @api.marshal_with(log_resp, envelope='data', skip_none=True)
     def get(self, site_id):
-        """
-        :raises TokenisationError: In case of malformed query
-        """
+
         query = request.args.get('query')
 
         # pagination params
