@@ -43,8 +43,7 @@ class Log(Resource):
     @site_restricted
     @api.doc('query the logs')
     @api.response(code=200, model=log_resp, description='Success')
-    # @api.response(code=400, model=log_resp, description='Invalid Query')
-    # @api.marshal_with(log_resp, envelope='data', skip_none=True)
+    @api.marshal_with(log_resp, envelope='data', skip_none=True)
     def get(self, site_id):
         """
         :raises TokenisationError: In case of malformed query
