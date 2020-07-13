@@ -1,6 +1,6 @@
-from app.main.dataprovider.log_dataprovider import LogDataProvider
-from app.main.model.log import Log
-# from app.main.util.print_b_tree import printBTree
+from app.dataprovider.log_dataprovider import LogDataProvider
+from app.model.log import Log
+# from app.util.print_b_tree import printBTree
 from .geo import get_country
 from .query_builder.tokeniser import TokenisedExpression
 from .query_builder.boolean_tree import BooleanExpressionGenerator

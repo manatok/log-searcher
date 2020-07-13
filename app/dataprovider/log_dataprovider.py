@@ -1,4 +1,4 @@
-from app.main.model.log import Log
+from app.model.log import Log
 from flask import current_app
 from elasticsearch import Elasticsearch
 

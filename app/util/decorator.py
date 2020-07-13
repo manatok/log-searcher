@@ -1,9 +1,9 @@
 from functools import wraps
 from flask import request, g
 
-from app.main.service.auth_helper import Auth
-from app.main.service.rate_limiter import RateLimiter
-from app.main.service.exception import RateLimitExceededError
+from app.service.auth_helper import Auth
+from app.service.rate_limiter import RateLimiter
+from app.service.exception import RateLimitExceededError
 
 
 def verified_request(f):

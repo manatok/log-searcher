@@ -2,7 +2,7 @@ from flask import request
 from flask_restx import Resource
 from werkzeug.exceptions import BadRequest
 
-from app.main.util.decorator import verified_request, \
+from app.util.decorator import verified_request, \
     rate_limited_request, token_required
 from ..util.dto import LogDto
 from ..service.log_service import save_log, query_logs

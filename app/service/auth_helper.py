@@ -1,6 +1,6 @@
 import jwt
-from app.main.model.user import User
-from app.main.model.site import Site
+from app.model.user import User
+from app.model.site import Site
 from urllib.parse import urlparse
 
 
