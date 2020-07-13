@@ -1,114 +1,99 @@
 import jwt
+import datetime
+from werkzeug.exceptions import Unauthorized, Forbidden
+
 from app.model.user import User
 from app.model.site import Site
+from app.model.token_user import TokenUser
+from app.dataprovider.user_dataprovider import get_user_by
+from app.dataprovider.site_dataprovider import get_site_by_id
 from urllib.parse import urlparse
+from ..config import key
 
 
-class Auth:
+def encode_auth_token(user: User) -> str:
+    """
+    Generates the Auth Token with the user credentials
+    :return: string
+    """
+    payload = {
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
+        'iat': datetime.datetime.utcnow(),
+        'sub': {
+            'id': user.id,
+            'allowed_site_ids': user.allowed_site_ids,
+        }
+    }
 
-    @staticmethod
-    def login_user(data):
-        try:
-            user = User.get_by('email', data.get('email'))
+    return jwt.encode(payload, key, algorithm='HS256')
 
-            if user and user.check_password(data.get('password')):
-                auth_token = user.encode_auth_token()
-                if auth_token:
-                    response_object = {
-                        'status': 'success',
-                        'message': 'Successfully logged in.',
-                        'Authorization': auth_token.decode()
-                    }
-                    return response_object, 200
-            else:
-                response_object = {
-                    'status': 'fail',
-                    'message': 'email or password does not match.'
-                }
-                return response_object, 401
 
-        except Exception:
-            response_object = {
-                'status': 'fail',
-                'message': 'Try again'
-            }
-            return response_object, 500
+def decode_auth_token(auth_token: str) -> TokenUser:
+    """
+    Decodes the auth token and return the payload
 
-    @staticmethod
-    def get_logged_in_user(new_request):
+    :param: auth_token
+    :return: TokenUser
+    :raises werkzeug.exceptions.Unauthorized: On expired signature or
+        invalid token
+    """
+    try:
+        payload = jwt.decode(auth_token, key)
 
-        auth_token = new_request.headers.get('Authorization')
+        return TokenUser(
+            payload['sub']['id'],
+            payload['sub']['allowed_site_ids'])
 
-        if auth_token:
-            try:
-                resp = User.decode_auth_token(auth_token)
-            except jwt.ExpiredSignatureError:
-                return {
-                    'status': 'fail',
-                    'message': 'Signature expired. Please log in again.'
-                }, 401
-            except jwt.InvalidTokenError:
-                return {
-                    'status': 'fail',
-                    'message': 'Invalid token. Please log in again.'
-                }, 401
+    except jwt.ExpiredSignatureError:
+        raise Unauthorized('Signature expired. Please log in again.')
 
-            user = User.get_by('id', resp['id'])
-            response_object = {
-                'status': 'success',
-                'data': {
-                    'id': user.id,
-                    'email': user.email,
-                    'allowed_site_ids': user.allowed_site_ids
-                }
-            }
-            return response_object, 200
+    except jwt.InvalidTokenError:
+        raise Unauthorized('Invalid token. Please log in again.')
 
-        else:
-            response_object = {
-                'status': 'fail',
-                'message': 'Provide a valid auth token.'
-            }
-            return response_object, 401
 
-    @staticmethod
-    def verify_request(new_request, site_id):
+def login_user(email: str, password: str) -> str:
+    """
+    Checks if the login credentials are correct and if they are returns a JWT.
 
-        referrer = new_request.headers.get("Referer")
+    :returns str: A JWT
+    :raises werkzeug.exceptions.Unauthorized: On invalid user
+    """
+    user = get_user_by('email', email)
 
-        if not referrer:
-            response_object = {
-                'status': 'fail',
-                'message': 'Referer HTTP header not set'
-            }
-            return response_object, 401
+    if user and user.check_password(password):
+        auth_token = encode_auth_token(user)
+        return auth_token.decode()
+    else:
+        raise Unauthorized('Email or password does not match.')
 
-        site = Site.get_by_id(site_id)
 
-        if site:
-            parsed_uri = urlparse(referrer)
+def verify_log_request(site_id, referrer) -> Site:
+    """
+    Ensure that the site_id has an account and that the HTTP Referrer
+    matches the registered domain.
 
-            if parsed_uri.scheme == site.scheme and \
-                    parsed_uri.netloc == site.domain:
+    :returns Site: On a successful authentication check
+    :raises werkzeug.exceptions.Unauthorized: On missing account 
+        or incorrect Referrer
+    """
+    site = get_site_by_id(site_id)
 
-                response_object = {
-                    'status': 'success',
-                    'data': {
-                        'id': site.id,
-                        'max_requests': site.max_requests,
-                        'window_seconds': site.window_seconds
-                    }
-                }
-                return response_object, 200
-            else:
-                response_object = {
-                    'status': 'fail',
-                    'message': 'SiteId not registered for this domain'
-                }
-                return response_object, 401
-        else:
-            response_object = {
-                'status': 'fail',
-                'message': 'Site not found'
-            }
-            return response_object, 401
+    if not site:
+        raise Unauthorized('No account found for site.')
+
+    parsed_uri = urlparse(referrer)
+
+    if parsed_uri.scheme == site.scheme and parsed_uri.netloc == site.domain:
+        return site
+    else:
+        raise Unauthorized('SiteId not registered for this domain.')
+
+
+def enforce_site_access(site_id: str, token_user: TokenUser):
+    """
+    Enforce that the user has access to the site.
+
+    :raises werkzeug.exceptions.Forbidden: If the user does not have access
+    """
+    if site_id not in token_user.allowed_site_ids:
+        raise Forbidden()

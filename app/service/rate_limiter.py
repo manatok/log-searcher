@@ -1,5 +1,6 @@
 import time
 from flask import current_app
+from werkzeug.exceptions import TooManyRequests
 
 
 class RateLimiter:

@@ -12,6 +12,10 @@ class AuthDto:
         'message': fields.String(required=True, description='The error message')
     })
 
+    auth_success = api.model('auth_success', {
+        'Authorization': fields.String(required=True, description='The Auth token')
+    })
+
 
 class LogDto:
     api = Namespace('logs', description='logging related operations')

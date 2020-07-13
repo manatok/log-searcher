@@ -1,12 +1,13 @@
 from flask import request
 from flask_restx import Resource
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import Unauthorized,\
+    TooManyRequests
 
-from app.util.decorator import verified_request, \
-    rate_limited_request, token_required
+from app.util.decorator import verified_account, \
+    rate_limited, token_required, site_restricted
 from ..util.dto import LogDto
 from ..service.log_service import save_log, query_logs
-from ..service.exception import TokenisationError, RateLimitExceededError
+from ..service.exception import TokenisationError
 
 api = LogDto.api
 log_req = LogDto.log_req
@@ -15,19 +16,19 @@ error_fields = LogDto.error_fields
 
 
 @api.errorhandler(TokenisationError)
-@api.errorhandler(RateLimitExceededError)
 @api.marshal_with(error_fields)
 @api.header('My-Header',  'Some description')
 def handle_exception(error):
     '''This is a custom error'''
+    print("ERORR IS: ", error.description)
     return {'message': error.description}, error.response, {'My-Header': 'Value'}
 
 
 @api.route('/<site_id>')
 @api.param('site_id', 'The SiteID provided when registering')
 class Log(Resource):
-    @verified_request
-    @rate_limited_request
+    @verified_account
+    @rate_limited
     @api.expect(log_req, validate=True)
     @api.response(201, 'Log successfully stored.')
     @api.doc('save a new log record')
@@ -40,6 +41,7 @@ class Log(Resource):
         return save_log(data, site_id, browser, url, ip_address)
 
     @token_required
+    @site_restricted
     @api.doc('query the logs')
     @api.response(code=200, model=log_resp, description='Success')
     # @api.response(code=400, model=log_resp, description='Invalid Query')

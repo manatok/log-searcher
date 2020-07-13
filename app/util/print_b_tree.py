@@ -1,6 +1,7 @@
 import functools as fn
 
-# https://stackoverflow.com/questions/48850446/how-to-print-a-binary-tree-in-as-a-structure-of-nodes-in-python
+# @NOTE This util was copied straight from Stack Overflow to help visualise the tree
+#  https://stackoverflow.com/questions/48850446/how-to-print-a-binary-tree-in-as-a-structure-of-nodes-in-python
 
 
 def printBTree(node, nodeInfo=None, inverted=False, isTop=True):
