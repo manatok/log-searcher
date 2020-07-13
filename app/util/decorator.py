@@ -2,7 +2,7 @@ from functools import wraps
 from flask import request, g
 from werkzeug.exceptions import TooManyRequests
 
-from app.service.auth_helper import decode_auth_token, verify_log_request, \
+from app.service.authentication import decode_auth_token, verify_log_request, \
     enforce_site_access
 from app.service.rate_limiter import RateLimiter
 
