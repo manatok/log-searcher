@@ -1,25 +1,10 @@
 import os
-
-
-from flask import Flask, Blueprint
-import redis
+from flask import Blueprint
 from flask_restx import Api
 
 from .controller.auth_controller import api as auth_ns
 from .controller.log_controller import api as log_ns
-from .config import config_by_name
-
-
-def create_app(config_name):
-    app = Flask(__name__)
-    app.config.from_object(config_by_name[config_name])
-
-    app.redis = redis.Redis(
-        password=app.config['REDIS_PASSWORD'],
-        port=app.config['REDIS_PORT'],
-        host=app.config['REDIS_HOST'])
-
-    return app
+from app import create_app
 
 
 blueprint = Blueprint('api', __name__)

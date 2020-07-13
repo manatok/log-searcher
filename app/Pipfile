@@ -16,6 +16,7 @@ redis = "*"
 pyjwt = "*"
 flask-restx = "*"
 werkzeug = "*"
+flask-testing = "*"
 
 [requires]
 python_version = "3.7"

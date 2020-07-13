@@ -1,7 +1,7 @@
 import unittest
 
 from app.service.query_builder.tokeniser import TokenisedExpression, \
-    UnbalancedQuotationsError, UnbalancedParenthesisError, UnknownKeywordError
+    TokenisationError
 
 
 class TokenisedExpressionTestCase(unittest.TestCase):
@@ -70,7 +70,7 @@ class TokenisedExpressionTestCase(unittest.TestCase):
                 quotation_string, is_valid, total_tokens = quotation_test
 
                 if not is_valid:
-                    with self.assertRaises(UnbalancedQuotationsError):
+                    with self.assertRaises(TokenisationError):
                         TokenisedExpression(quotation_string)
                 else:
                     te = TokenisedExpression(quotation_string)
@@ -85,7 +85,7 @@ class TokenisedExpressionTestCase(unittest.TestCase):
                 parenthesis_string, is_valid = parenthesis_test
 
                 if not is_valid:
-                    with self.assertRaises(UnbalancedParenthesisError):
+                    with self.assertRaises(TokenisationError):
                         TokenisedExpression(parenthesis_string)
                 else:
                     TokenisedExpression(parenthesis_string)
@@ -97,7 +97,7 @@ class TokenisedExpressionTestCase(unittest.TestCase):
                 token_string, is_valid = token_test
 
                 if not is_valid:
-                    with self.assertRaises(UnknownKeywordError):
+                    with self.assertRaises(TokenisationError):
                         TokenisedExpression(token_string)
                 else:
                     TokenisedExpression(token_string)
