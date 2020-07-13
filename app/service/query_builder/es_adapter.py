@@ -1,6 +1,6 @@
-import ast
 import json
 from .boolean_tree import BooleanNode, BooleanCondition
+from app.util.escape import decode_escapes, dequote
 
 
 class ElasticsearchAdapter:
@@ -27,6 +27,7 @@ class ElasticsearchAdapter:
             'from': offset,
             'query': self.get_query_recursive(self.boolean_tree)
         }
+
         return json.dumps(query)
 
     def get_query_recursive(self, node):
@@ -34,9 +35,11 @@ class ElasticsearchAdapter:
         # we are at a leaf node
         if isinstance(node, BooleanCondition):
             search_dict = {}
+
             search_dict[self.OPERATION_MAPPING[node.operation]] = {
-                node.key: ast.literal_eval(node.value)
+                node.key: dequote(decode_escapes(node.value))
             }
+
         else:
             left = self.get_query_recursive(node.left)
             right = self.get_query_recursive(node.right)

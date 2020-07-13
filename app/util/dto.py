@@ -25,7 +25,7 @@ class LogDto:
     })
 
     log_resp = api.model('log_resp', {
-        'log': fields.String(required=True, description='The error log message'),
+        'message': fields.String(required=True, description='The error log message'),
         'browser': fields.String(required=False, description='The browser of the user'),
         'url': fields.String(required=False, description='The URL the error occurred on'),
         'country': fields.String(required=False, description='The country the user is from'),

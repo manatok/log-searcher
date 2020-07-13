@@ -32,7 +32,7 @@ class TokenTypes:
 
 class TokenisedExpression:
 
-    FIELDS = ['browser', 'country', 'url', 'log']
+    FIELDS = ['browser', 'country', 'url', 'message']
     BOOLEAN_OPERATORS = ['and', 'or', 'not']
     OPERATIONS = ['is', 'contains']
     PARENTHESIS = ['(', ')']
