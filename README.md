@@ -72,7 +72,7 @@ Where the `[]` represents optional, the `<>` represents required and `|` separat
 ### Installation
 1. Clone out the repo.
 2. `cd backend-task-david/`
-3. `make run`
+3. `make run` # or `make run_background`
 
 At this point you should see all of the services starting up in the terminal. If there are any Docker images that you do not have locally they will automatically be downloaded first.
 
@@ -83,6 +83,22 @@ At this point you should see all of the services starting up in the terminal. If
 4. API
 
 
-## Running the Tests
-1. `cd backend-task-david/`
+## Running the Unit and Integration Tests
+They can be run as follows:
+1. `cd backend-task-david/app`
+2. `pipenv shell`
+3. `pipenv install`
+4. `cd ..`
 2. `make test`
+
+## Running Smoke Tests
+This will start up the system in docker, and then once it's up it 
+will ensure that a log can be sent, a user can authenticate, logs can
+be queried and that the rate limiting kicks in.
+
+They can be run as follows:
+1. `cd backend-task-david/app`
+2. `pipenv shell`
+3. `pipenv install`
+4. `cd ..`
+2. `make test_smoke`
