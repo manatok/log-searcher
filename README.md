@@ -72,9 +72,9 @@ Where the `[]` represents optional, the `<>` represents required and `|` separat
 ### Installation
 1. Clone out the repo.
 2. `cd backend-task-david/`
-3. `make run` # or `make run_background`
+3. `make run`
 
-At this point you should see all of the services starting up in the terminal. If there are any Docker images that you do not have locally they will automatically be downloaded first.
+At this point you should see all of the services starting up in the terminal. If there are any Docker images that you do not have locally they will automatically be downloaded first. Wait a couple of seconds until Elasticsearch is running.
 
 ### Services started:
 1. Elasticsearch
