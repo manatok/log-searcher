@@ -47,7 +47,7 @@ class Log(Resource):
 
         # pagination params
         limit = request.args.get('limit', 10)
-        limit = get_int_value(limit, 10, 0)
+        limit = get_int_value(limit, 10, 1)
         page = request.args.get('page', 1)
         page = get_int_value(page, 1, 1)
         offset = (page - 1) * limit

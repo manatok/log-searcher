@@ -12,7 +12,7 @@ def save_log(data: str, site_id: str, browser: str, url: str, ip: str):
     Save the log record to Elasticsearch
     """
     # Construct the entity to be saved
-    log = Log(data['message'], browser, get_country(ip), url)
+    log = Log(data['message'], browser, url, get_country(ip))
 
     if LogDataProvider.save(log, site_id):
         return
