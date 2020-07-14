@@ -21,7 +21,7 @@ class TokenisedExpression:
     2. Tokenise: splits the search query into it's token constituents.
 
     3. Validate: ensures that the query is escaped properly, that all of the
-            parenthesis are balanced and that the tokens are all allowed.
+            parentheses are balanced and that the tokens are all allowed.
     """
 
     FIELDS = ['browser', 'country', 'url', 'message']

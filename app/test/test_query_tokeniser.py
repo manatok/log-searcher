@@ -6,9 +6,6 @@ from app.service.query_builder.tokenised_expression import TokenisedExpression, 
 
 class TokenisedExpressionTestCase(unittest.TestCase):
 
-    def setUp(self):
-        pass
-
     """
     The string to test in the following format:
     [test_string, is_valid, total_seach_tokens]
@@ -46,6 +43,10 @@ class TokenisedExpressionTestCase(unittest.TestCase):
         [r' message contains ""application.js"', False, None]
     ]
 
+    """
+    Test if the parenthesis are balanced.
+    Need to ignore the parenthesis inside the search phrase.
+    """
     test_parenthesis_strings = [
         [""" ()()() """, True],
         [""" (((((((((()))))((((())))))(((()))))))) """, True],
@@ -57,6 +58,9 @@ class TokenisedExpressionTestCase(unittest.TestCase):
         [""" (message contains 'foo)' AND (country is 'South Africa' OR country is 'Malta') """, False]
     ]
 
+    """
+    Test that only valid keywords and terms are used.
+    """
     test_token_strings = [
         [""" country contains 'foo' """, True],
         [""" browser (country) (url) (message) is contains and or not () """, True],
@@ -65,6 +69,11 @@ class TokenisedExpressionTestCase(unittest.TestCase):
     ]
 
     def test_quotation_validation(self):
+        """
+        Test various combinations of quotations to ensure that they are
+        escaped properly and that the correct number of search terms 
+        are found.
+        """
         for i, quotation_test in enumerate(self.test_quotation_strings):
             with self.subTest(i):
                 quotation_string, is_valid, total_tokens = quotation_test
@@ -79,7 +88,10 @@ class TokenisedExpressionTestCase(unittest.TestCase):
                     self.assertEqual(total_tokens, len(te.terms.keys()))
 
     def test_parenthesis_validation(self):
-
+        """
+        Ensure that all of the parenthesis outside of the search terms
+        are balanced.
+        """
         for i, parenthesis_test in enumerate(self.test_parenthesis_strings):
             with self.subTest(i):
                 parenthesis_string, is_valid = parenthesis_test
@@ -91,7 +103,9 @@ class TokenisedExpressionTestCase(unittest.TestCase):
                     TokenisedExpression(parenthesis_string)
 
     def test_token_validation(self):
-
+        """
+        Test that only valid keywords and terms are used.
+        """
         for i, token_test in enumerate(self.test_token_strings):
             with self.subTest(i):
                 token_string, is_valid = token_test

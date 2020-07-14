@@ -26,7 +26,7 @@ class RateLimiter:
         pipeline.zrange(site_id, 0, -1)
         # add the current request timestamp
         pipeline.zadd(site_id, {now: now})
-        # shift the expiry window along
+        # set a new expiry on the list
         pipeline.expire(site_id, window_timeframe)
         # run as atomic transaction
         result = pipeline.execute()
